@@ -3,9 +3,12 @@ package com.hykj.maptilesdownload.transfom;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.ShapefileDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.swing.data.JFileDataStoreChooser;
@@ -84,7 +87,7 @@ public class Csv2Shape {
                     featureBuilder.add(number);
                     SimpleFeature feature = featureBuilder.buildFeature(null);
                     features.add(feature);
-                    System.out.println(features);
+//                    System.out.println(features);
 
                 }
             }
@@ -116,6 +119,39 @@ public class Csv2Shape {
         String typeName = newDataStore.getTypeNames()[0];
         SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
         SimpleFeatureType SHAPE_TYPE = featureSource.getSchema();
+        /*
+         * The Shapefile format has a couple limitations:
+         * - "the_geom" is always first, and used for the geometry attribute name
+         * - "the_geom" must be of type Point, MultiPoint, MuiltiLineString, MultiPolygon
+         * - Attribute names are limited in length
+         * - Not all data types are supported (example Timestamp represented as Date)
+         *
+         * Each data store has different limitations so check the resulting SimpleFeatureType.
+         */
+        System.out.println("SHAPE:" + SHAPE_TYPE);
+        if (featureSource instanceof SimpleFeatureStore) {
+            SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
+            /*
+             * SimpleFeatureStore has a method to add features from a
+             * SimpleFeatureCollection object, so we use the ListFeatureCollection
+             * class to wrap our list of features.
+             */
+            SimpleFeatureCollection collection = new ListFeatureCollection(TYPE, features);
+            featureStore.setTransaction(transaction);
+            try {
+                featureStore.addFeatures(collection);
+                transaction.commit();
+            } catch (Exception problem) {
+                problem.printStackTrace();
+                transaction.rollback();
+            } finally {
+                transaction.close();
+            }
+            System.exit(0); // success!
+        } else {
+            System.out.println(typeName + " does not support read/write access");
+            System.exit(1);
+        }
     }
     private static File getNewShapeFile(File csvFile) {
         String path = csvFile.getAbsolutePath();
