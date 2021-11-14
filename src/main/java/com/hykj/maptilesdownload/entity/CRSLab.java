@@ -139,6 +139,7 @@ public class CRSLab {
             return;
         }
         CoordinateReferenceSystem dataCRS = schema.getCoordinateReferenceSystem();
+        //test
         CoordinateReferenceSystem worldCRS = map.getCoordinateReferenceSystem();
         MathTransform transform = CRS.findMathTransform(dataCRS, worldCRS, true);
         SimpleFeatureCollection featureCollection = featureSource.getFeatures();
