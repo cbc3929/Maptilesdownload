@@ -23,7 +23,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.util.ProgressListener;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -49,11 +48,11 @@ public class CRSLab {
         crsLab.displayShapefile();//调用显示shp的方法
     }
 
-    private void displayShapefile() throws Exception{
+    private void displayShapefile() throws Exception {
         //新建窗口选择shp
-        sourceFile = JFileDataStoreChooser.showOpenFile("shp",null);
+        sourceFile = JFileDataStoreChooser.showOpenFile("shp", null);
         //检查合法性
-        if (sourceFile == null){
+        if (sourceFile == null) {
             return;
         }
         //新建一个datastore把文件store化
@@ -63,7 +62,7 @@ public class CRSLab {
         //处理一下地图样式问题根据feature的类型新建style和layer添加到地图控件上
         map = new MapContent();
         Style style = SLD.createSimpleStyle(featureSource.getSchema());
-        Layer layer = new FeatureLayer(featureSource,style);
+        Layer layer = new FeatureLayer(featureSource, style);
         map.layers().add(layer);
         //把控制Bar打开
         JMapFrame mapFrame = new JMapFrame(map);
@@ -78,42 +77,47 @@ public class CRSLab {
         mapFrame.setSize(800, 600);
         mapFrame.setVisible(true);
     }
+
     //一个geotools给的动作类
-    class ValidateGeometryAction extends SafeAction{
-        ValidateGeometryAction(){
+    class ValidateGeometryAction extends SafeAction {
+        ValidateGeometryAction() {
             super("Validate geometry");
-            putValue(Action.SHORT_DESCRIPTION,"check each geometry");
+            putValue(Action.SHORT_DESCRIPTION, "check each geometry");
         }
+
         //定义抽象类方法
-        public void action(ActionEvent e) throws Throwable{
-            int numInvalid = validateFeatureGeometry(null);
+        public void action(ActionEvent e) throws Throwable {
+            int numInvalid = validateFeatureGeometry();
             String msg;
-            if (numInvalid == 0){
+            if (numInvalid == 0) {
                 msg = "Allfeature geometries is valid";
-            }else {
-                msg = "invalid geometries:"+numInvalid;
+            } else {
+                msg = "invalid geometries:" + numInvalid;
             }
-            JOptionPane.showConfirmDialog(null,msg,"Geometry results", JOptionPane.YES_NO_CANCEL_OPTION);
+            JOptionPane.showConfirmDialog(null, msg, "Geometry results", JOptionPane.YES_NO_CANCEL_OPTION);
         }
-        private int validateFeatureGeometry(ProgressListener progress) throws Exception {
+
+        private int validateFeatureGeometry() throws Exception {
             final SimpleFeatureCollection featureCollection = featureSource.getFeatures();
             class VaildationVisitor implements FeatureVisitor {
-                public  int numInvalidGeometries = 0;
-                public void visit(Feature f){
+                public int numInvalidGeometries = 0;
+
+                public void visit(Feature f) {
                     SimpleFeature feature = (SimpleFeature) f;
                     Geometry geom = (Geometry) feature.getDefaultGeometry();
-                    if (geom!=null&&!geom.isValid()){
+                    if (geom != null && !geom.isValid()) {
                         numInvalidGeometries++;
-                        System.out.println("Invalid Geometry:"+feature.getID());
+                        System.out.println("Invalid Geometry:" + feature.getID());
                     }
                 }
             }
             VaildationVisitor visitor = new VaildationVisitor();
 
-            featureCollection.accepts(visitor,progress);
+            featureCollection.accepts(visitor, null);
             return visitor.numInvalidGeometries;
         }
     }
+
     class ExportShapefileAction extends SafeAction {
         ExportShapefileAction() {
             super("Export...");
@@ -124,6 +128,7 @@ public class CRSLab {
             exportToShapefile();
         }
     }
+
     private void exportToShapefile() throws Exception {
         SimpleFeatureType schema = featureSource.getSchema();
         JFileDataStoreChooser chooser = new JFileDataStoreChooser("shp");
@@ -178,4 +183,42 @@ public class CRSLab {
             transaction.close();
         }
     }
+    /*婉儿解析（详）
+一、技能配合及连招
+1.	技能（21）（13）（23）可回血并加强普攻伤害，
+ 21的伤害在末端会爆炸一下，并超过2技能的最远距离！
+ 2技能收割发现没有收割只差一点点血，立马在2轨迹放1会有多段伤害！
+2.	常用技能连招233133、133233、21333、233313、2133（来回速飞）、随机多变性连招、Z字抖动
+细节拆分：2前3后3或2前3前3后3（防止2技能轨迹中伤害丢失未打满）
+3.	刹车：23 刹车，2技能放出接大3一下瞬间松开左手（左手指离开屏幕）
+4.	拐笔
+拐笔在233基础上，原先左轮盘手指朝前方飞两端改变成往前飞一段再往旁边飞一段
+
+5.	藏笔
+
+6.	双笔2332133、213333、2331323|
+7.	无大平a流婉儿：aa2a1a2
+二、团战思路及进场时机
+伤害刮痧分析：21双笔打空、飞天途中不睬人、装备核心搞错（鞋子+四件大法师装备伤害效果=65%/鞋子+五件法师装备效果85% /六法装自保能力85%伤害效果90%）
+逆风反打：队友较坑容易被抓单形成4v5局面/打团残局形成4v5或2v4残局
+要点：保证中路或其他路兵线不进塔，213快速清线
+如2v4看懂对面站位，22人站位13人站位都可以速飞秒
+顺风打法：探草+遁草（遁草前2技能要探草配合回响），2技能点头起步秒，大招回撤收割，利用这点让对方永远没节奏并压塔
+关于压塔推塔，在前者使对面少人的基础上适当卖，主动233 起步动作2133打一波伤害刹车卡一段大招骗技能在起飞，其次阵容很肉也是会刮痧哒，所以要用21消耗！切记不能直接飞！
+盾山：举盾时可绕开千万不能靠近！盾山举盾进度条快消失马上瞬笔（速飞2133回头断大流）消耗
+张良：藏笔或者原地卡三至四段大招闪现3
+东皇：反应大招飞天吃大招，靠反应和对距离的把握，难度大。 藏笔或者靠队友卖，其次也可靠蹲草丛切后排。
+公孙离：藏笔或原地飞或者等他2技能交了在上
+三、布局设置及操作设置
+攻击方式：选择最近单位
+摇杆：无固定。
+技能释放：三项第一，灵敏度最高。
+自定义布局：根据个人手感调整轮盘大小。
+四、节奏意识
+2级边路帮忙（偷吃经济）速回中路清线并配合打野拿下河蟹，如果没有成功或者途中死亡，等待四级还是能单杀！其他抓人call细讲。
+五、各中单对线
+Call细讲或文字QQ回答
+
+
+    * */
 }

@@ -29,18 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 
-/**
- * @BelongProject:Maptilesdownload
- * @BelongPackage:com.hykj.maptilesdownload.transfom
- * @Author:Administrator
- * @CreateTime:2021-11-10-14-41
- * @Description:cc
- */
 public class Csv2Shape {
     public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        File file = JFileDataStoreChooser.showOpenFile("csv",null);
-        if (file==null){
+        File file = JFileDataStoreChooser.showOpenFile("csv", null);
+        if (file == null) {
             return;
         }
         /*
@@ -49,13 +42,13 @@ public class Csv2Shape {
          *
          * See also the createFeatureType method below for another, more flexible approach.
          */
-        final SimpleFeatureType TYPE =DataUtilities.createType(
+        final SimpleFeatureType TYPE = DataUtilities.createType(
                 "Location",
                 "the_geom:Point:srid=4326," +
                         "name:String," +
                         "number:Integer"
         );
-        System.out.println("TYPE:"+TYPE);
+        System.out.println("TYPE:" + TYPE);
         /*
          * A list to collect features as we create them.
          */
@@ -66,21 +59,21 @@ public class Csv2Shape {
          */
         GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(TYPE);
-        try(BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             /* First line of the data file is the header */
             String line = reader.readLine();
-            System.out.println("Header:"+line);
+            System.out.println("Header:" + line);
 
-            for (line = reader.readLine();line!=null;line = reader.readLine()){
-                if (line.trim().length()>0){//跳过空行
-                    String[] token = line.split("\\,");
+            for (line = reader.readLine(); line != null; line = reader.readLine()) {
+                if (line.trim().length() > 0) {//跳过空行
+                    String[] token = line.split(",");
 
                     double latitude = Double.parseDouble(token[0]);
                     double longitude = Double.parseDouble(token[1]);
                     String name = token[2].trim();
                     int number = Integer.parseInt(token[3].trim());
 
-                    Point point = geometryFactory.createPoint(new Coordinate(longitude,latitude));
+                    Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
                     featureBuilder.add(point);
                     featureBuilder.add(name);
@@ -125,7 +118,7 @@ public class Csv2Shape {
          * - Attribute names are limited in length
          * - Not all data types are supported (example Timestamp represented as Date)
          *
-         * Each data store has different limitations so check the resulting SimpleFeatureType.
+         * All data store has different limitations so check the resulting SimpleFeatureType.
          */
         System.out.println("SHAPE:" + SHAPE_TYPE);
         if (featureSource instanceof SimpleFeatureStore) {
@@ -152,6 +145,7 @@ public class Csv2Shape {
             System.exit(1);
         }
     }
+
     private static File getNewShapeFile(File csvFile) {
         String path = csvFile.getAbsolutePath();
         String newPath = path.substring(0, path.length() - 4) + ".shp";
