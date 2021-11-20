@@ -18,11 +18,13 @@ public class MyRunnable implements Runnable {
     private final Integer y;
     private final String address = "https://mt1.google.com/vt/lyrs=s&x=a&y=b&z=";
     private final Integer z;
+    private final String outpath;
 
-    public MyRunnable(Integer x, Integer y, Integer z) {
+    public MyRunnable(Integer x, Integer y, Integer z, String outpath) {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.outpath = outpath;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class MyRunnable implements Runnable {
 
     public void downloadtiles() {
         String imgUrl = "https://mt1.google.com/vt/lyrs=s&x=" + x + "&y=" + y + "&z=" + z;
-        String filepath = "f:\\ditu\\muli\\" + z + "\\" + x + "\\";
+        String filepath = outpath + "\\" + z + "\\" + x + "\\";
         File Dir = new File(filepath);
         InputStream inStream;
         if (!Dir.exists()) {

@@ -27,15 +27,21 @@
     maximumPoolSize = 10
     # 连接只读数据库时配置为true， 保证安全
     readOnly = false
-
-[group_dbdyneetect]
-    url = jdbc:postgresql://192.168.1.221:5433/dyndetect?useSSL=false
+    # 数据库配置
+    database = postgres
+    host = 192.168.1.221
+    port = 5433
     user = postgres
     pass = 123456
+    url = jdbc:postgresql://${host}:${port}/${database}?useSSL=false
     driver = org.postgresql.Driver
+    # 下载瓦片设置
+    ShpPath = f:\\testshp\\yanyuan.shp
+    minZoom = 10
+    MaxZoom = 15
+    outPath = F:\\ditu\\ttest\\yuayuan
+    Process_num = 1000
 
-[group_dbpostgres]
-    url = jdbc:postgresql://192.168.1.221:5433/postgres?useSSL=false
-    user = postgres
-    pass = 123456
-    driver = org.postgresql.Driver
+    #代理设置
+    proxyPort = 10809
+    proxyHost = 127.0.0.1
