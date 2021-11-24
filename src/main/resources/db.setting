@@ -27,21 +27,35 @@
     maximumPoolSize = 10
     # 连接只读数据库时配置为true， 保证安全
     readOnly = false
-    # 数据库配置
+
+
+    ## 数据库配置
+    ## 数据只做计算使用，不会残留任何数据在其中
+    # 挂载Postgis的数据库名称
     database = postgres
+    # 地址
     host = 192.168.1.221
+    # 端口
     port = 5433
+    # 用户名
     user = postgres
+    # 密码
     pass = 123456
     url = jdbc:postgresql://${host}:${port}/${database}?useSSL=false
     driver = org.postgresql.Driver
-    # 下载瓦片设置
+
+    ## 下载瓦片设置
+    # shp存放地址
     ShpPath = f:\\testshp\\yanyuan.shp
-    minZoom = 10
-    MaxZoom = 15
+    # 最小层级
+    minZoom = 16
+    #最大层级
+    MaxZoom = 19
+    # 瓦片存放地址
     outPath = F:\\ditu\\ttest\\yuayuan
+    # 同时并行线程数量 （每秒钟1000张左右）
     Process_num = 1000
 
-    #代理设置
+    #代理设置(不需要直接留空即可)
     proxyPort = 10809
     proxyHost = 127.0.0.1

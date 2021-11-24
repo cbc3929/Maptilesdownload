@@ -27,11 +27,12 @@ public class ThreadPoolExecutorDemo {
         //通过ThreadPoolExecutor构造函数自定义参数创建
         Map map = GlobalConfig.globalConfig();
 
-        System.setProperty("proxyType", "4");
-        System.setProperty("proxyPort", map.get("proxyPort").toString());
-        System.setProperty("proxyHost", map.get("proxyHost").toString());
-        System.setProperty("proxySet", "true");
-
+        if (map.get("proxyPort") != null) {
+            System.setProperty("proxyType", "4");
+            System.setProperty("proxyPort", map.get("proxyPort").toString());
+            System.setProperty("proxyHost", map.get("proxyHost").toString());
+            System.setProperty("proxySet", "true");
+        }
         Bounds bounds = new Bounds();
         List<String[]> boxs = bounds.getlistbounds();
 
